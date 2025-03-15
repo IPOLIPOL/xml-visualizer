@@ -19,7 +19,7 @@
 
  <script>
     async function testXMLFetch() {
-        let response = await fetch("https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/main/data/file1.xml");
+        let response = await fetch("https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/refs/heads/main/data/file1.xml");
         let text = await response.text();
         document.body.innerHTML += `<pre>${text}</pre>`;  // Show XML content on page
     }
