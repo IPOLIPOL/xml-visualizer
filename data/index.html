@@ -6,89 +6,46 @@
     <title>XML Tree Visualizer</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; }
+        body { font-family: Arial, sans-serif; padding: 20px; }
         .node circle { fill: steelblue; stroke: black; stroke-width: 1.5px; }
         .node text { font-size: 12px; }
         .link { fill: none; stroke: #ccc; stroke-width: 1.5px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow: auto; }
+        .error { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
     <h2>XML Tree Visualizer</h2>
+    <p>Checking if XML files can be loaded...</p>
+    <div id="debug"></div>
     <svg width="960" height="600"></svg>
 
-
- <script>
-    async function testXMLFetch() {
-        let response = await fetch("https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/refs/heads/main/data/file1.xml");
-        let text = await response.text();
-        document.body.innerHTML += `<pre>${text}</pre>`;  // Show XML content on page
-    }
-    testXMLFetch();
-</script>
-
-    
-
     <script>
-        async function loadXMLFiles(files) {
-            let parser = new DOMParser();
-            let trees = [];
+        async function testXMLFetch() {
+            const debugDiv = document.getElementById("debug");
+            const fileUrl = "https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/main/data/file1.xml";
+            
+            try {
+                let response = await fetch(fileUrl);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-            for (let file of files) {
-                let response = await fetch(file);
                 let text = await response.text();
+                debugDiv.innerHTML += `<h3>Fetched XML:</h3><pre>${text}</pre>`;
+
+                let parser = new DOMParser();
                 let xml = parser.parseFromString(text, "application/xml");
-                trees.push(xmlToJSON(xml.documentElement));
+
+                if (xml.querySelector("parsererror")) {
+                    debugDiv.innerHTML += `<p class="error">Error parsing XML. Check your file format.</p>`;
+                } else {
+                    debugDiv.innerHTML += `<p style="color: green;">✅ XML loaded successfully!</p>`;
+                }
+            } catch (error) {
+                debugDiv.innerHTML += `<p class="error">❌ Failed to fetch XML: ${error.message}</p>`;
             }
-
-            let combinedTree = { name: "Root", children: trees };
-            renderTree(combinedTree);
         }
 
-        function xmlToJSON(xml) {
-            let obj = { name: xml.nodeName, children: [] };
-            for (let node of xml.children) {
-                obj.children.push(xmlToJSON(node));
-            }
-            return obj;
-        }
-
-        function renderTree(data) {
-            d3.select("svg").selectAll("*").remove(); 
-
-            let width = 960, height = 600;
-            let svg = d3.select("svg").attr("width", width).attr("height", height);
-            let g = svg.append("g").attr("transform", "translate(50,50)");
-
-            let treeLayout = d3.tree().size([width - 100, height - 100]);
-            let root = d3.hierarchy(data);
-            treeLayout(root);
-
-            let link = g.selectAll(".link")
-                .data(root.links())
-                .enter().append("line")
-                .attr("class", "link")
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-
-            let node = g.selectAll(".node")
-                .data(root.descendants())
-                .enter().append("g")
-                .attr("class", "node")
-                .attr("transform", d => `translate(${d.x},${d.y})`);
-
-            node.append("circle").attr("r", 6);
-            node.append("text").attr("dy", -10).attr("text-anchor", "middle").text(d => d.data.name);
-        }
-
-        let xmlFiles = [
-            "https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/refs/heads/main/data/file1.xml",
-            "https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/refs/heads/main/data/file2.xml",
-            "https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/refs/heads/main/data/file3.xml"
-        
-        ];
-        loadXMLFiles(xmlFiles);
+        testXMLFetch();
     </script>
 </body>
 </html>
