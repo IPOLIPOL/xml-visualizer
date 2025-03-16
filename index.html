@@ -34,7 +34,7 @@
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
                 let text = await response.text();
-                debugDiv.innerHTML += `<h3>✅ Fetched XML:</h3><pre>${text}</pre>`;
+                debugDiv.innerHTML += `<h3>✅ Raw XML Response:</h3><pre>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
 
                 let parser = new DOMParser();
                 let xml = parser.parseFromString(text, "application/xml");
