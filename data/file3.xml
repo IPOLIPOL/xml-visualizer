@@ -1,9 +1,9 @@
-<root>
-    <item name="Node E">
+<K3>
+    <item name="K3.HG2">
         <subitem name="Child 1"></subitem>
         <subitem name="Child 2"></subitem>
     </item>
-    <item name="Node F">
+    <item name="K3.LC1">
         <subitem name="Child 3"></subitem>
     </item>
-</root>
+</K3>
