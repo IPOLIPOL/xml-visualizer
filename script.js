@@ -41,7 +41,7 @@ function renderTree(data, orientation) {
     root.x0 = height / 2;
     root.y0 = 0;
 
-    let pathHighlight = [];
+    let pathHighlight = []; // Track the path to highlight
 
     function update(source) {
         let treeData = treeLayout(root);
@@ -156,5 +156,6 @@ function renderTree(data, orientation) {
         }
     }
 }
+
 
 
