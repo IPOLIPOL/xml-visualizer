@@ -31,12 +31,15 @@
             renderTree(combinedTree);
         }
 
-        function xmlToJSON(xml) {
-            let obj = { name: xml.nodeName, children: [] };
-            for (let node of xml.children) {
-                obj.children.push(xmlToJSON(node));
-            }
-            return obj;
+        function xmlToJSON(xml)  {
+    // Check if the element has a name attribute
+    let nodeName = xml.getAttribute("name") || xml.nodeName;    
+    let obj = { name: nodeName, children: [] };  
+    // Process child elements
+    for (let node of xml.children) {
+        obj.children.push(xmlToJSON(node));
+    }    
+    return obj;
         }
 
         function renderTree(data) {
