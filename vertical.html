@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical XML Tree</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="script.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .node circle { fill: steelblue; stroke: black; stroke-width: 1.5px; }
+        .node text { font-size: 12px; }
+        .link { fill: none; stroke: #ccc; stroke-width: 1.5px; }
+    </style>
+</head>
+<body>
+    <h2>Vertical XML Tree</h2>
+    <svg width="960" height="600"></svg>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadXMLFiles(["data/file1.xml", "data/file2.xml", "data/file3.xml"], "vertical");
+        });
+    </script>
+</body>
+</html>
