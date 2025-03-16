@@ -1,6 +1,8 @@
 <K3>
     <item name="K3.HG2">
         <subitem name="Genset"></subitem>
+            <subsubitem name="Alternator"></subsubitem>
+            <subsubitem name="Engine"></subsubitem>
         <subitem name="Day tank"></subitem>
     </item>
     <item name="K3.LC1">
