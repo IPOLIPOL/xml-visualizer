@@ -113,12 +113,15 @@ function renderTree(data, orientation) {
     }
 
     function toggleNode(d) {
-        if (d.children) {
-            d._children = d.children;
-            d.children = null;
-        } else {
-            d.children = d._children;
-            d._children = null;
+        // Toggle the collapse state for the clicked node
+        if (d.children || d._children) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
         }
         update(d);
     }
