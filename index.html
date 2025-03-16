@@ -1,1 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Tree Visualizer</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .node circle { fill: steelblue; stroke: black; stroke-width: 1.5px; }
+        .node text { font-size: 12px; }
+        .link { fill: none; stroke: #ccc; stroke-width: 1.5px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow: auto; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>XML Tree Visualizer</h2>
+    <p>Checking if XML files can be loaded...</p>
+    <div id="debug"></div>
+    <svg width="960" height="600"></svg>
+    <p style="color: red;">✅ JavaScript is running!</p>
 
+
+    <script>
+        async function testXMLFetch() {
+            const debugDiv = document.getElementById("debug");
+            const fileUrl = "https://raw.githubusercontent.com/IPOLIPOL/xml-visualizer/main/data/file1.xml";
+            
+            debugDiv.innerHTML += `<p>🔍 Trying to fetch: <a href="${fileUrl}" target="_blank">${fileUrl}</a></p>`;
+
+            try {
+                let response = await fetch(fileUrl);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                let text = await response.text();
+                debugDiv.innerHTML += `<h3>✅ Fetched XML:</h3><pre>${text}</pre>`;
+
+                let parser = new DOMParser();
+                let xml = parser.parseFromString(text, "application/xml");
+
+                if (xml.querySelector("parsererror")) {
+                    debugDiv.innerHTML += `<p class="error">❌ Error parsing XML. Check the file format.</p>`;
+                } else {
+                    debugDiv.innerHTML += `<p style="color: green;">✅ XML is valid!</p>`;
+                }
+            } catch (error) {
+                debugDiv.innerHTML += `<p class="error">❌ Failed to fetch XML: ${error.message}</p>`;
+            }
+        }
+
+        testXMLFetch();
+    </script>
+</body>
+</html>
