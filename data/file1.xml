@@ -1,4 +1,4 @@
-<=K1>
+<K1>
     <item name="Node A">
         <subitem name="Child 1"></subitem>
         <subitem name="Child 2"></subitem>
@@ -6,4 +6,4 @@
     <item name="Node B">
         <subitem name="Child 3"></subitem>
     </item>
-</=K1>
+</K1>
