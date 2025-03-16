@@ -29,9 +29,8 @@ function renderTree(data, orientation) {
 
     let baseWidth = 960, baseHeight = 600;
 
-    // Compute max depth to set dynamic width for horizontal trees
     let root = d3.hierarchy(data);
-    let maxDepth = root.height; // Tree depth (number of levels)
+    let maxDepth = root.height;
     let width = orientation === "horizontal" ? Math.max(baseWidth, maxDepth * 200) : baseWidth;
     let height = baseHeight;
 
@@ -40,7 +39,7 @@ function renderTree(data, orientation) {
 
     let treeLayout;
     if (orientation === "horizontal") {
-        treeLayout = d3.tree().size([height - 100, width - 200]);  // Expand width dynamically
+        treeLayout = d3.tree().size([height - 100, width - 200]);
     } else {
         treeLayout = d3.tree().size([width - 100, height - 100]);
     }
@@ -54,15 +53,32 @@ function renderTree(data, orientation) {
         .attr("x1", d => orientation === "horizontal" ? d.source.y : d.source.x)
         .attr("y1", d => orientation === "horizontal" ? d.source.x : d.source.y)
         .attr("x2", d => orientation === "horizontal" ? d.target.y : d.target.x)
-        .attr("y2", d => orientation === "horizontal" ? d.target.x : d.target.y);
+        .attr("y2", d => orientation === "horizontal" ? d.target.x : d.target.y)
+        .style("stroke", "#ccc") 
+        .style("stroke-width", "1.5px");
 
     let node = g.selectAll(".node")
         .data(root.descendants())
         .enter().append("g")
         .attr("class", "node")
-        .attr("transform", d => orientation === "horizontal" ? `translate(${d.y},${d.x})` : `translate(${d.x},${d.y})`);
+        .attr("transform", d => orientation === "horizontal" ? `translate(${d.y},${d.x})` : `translate(${d.x},${d.y})`)
+        .on("click", (event, d) => highlightPath(d, link));
 
-    node.append("circle").attr("r", 6);
+    node.append("circle").attr("r", 6).style("cursor", "pointer");
     node.append("text").attr("dy", -10).attr("text-anchor", "middle").text(d => d.data.name);
+
+    function highlightPath(selectedNode, links) {
+        // Reset all links to default color and width
+        links.style("stroke", "#ccc").style("stroke-width", "1.5px");
+
+        // Highlight path to root
+        let current = selectedNode;
+        while (current.parent) {
+            let linkToHighlight = links.filter(d => d.target === current);
+            linkToHighlight.style("stroke", "red").style("stroke-width", "3px");
+            current = current.parent;
+        }
+    }
 }
+
 
