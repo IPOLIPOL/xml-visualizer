@@ -27,18 +27,24 @@ function xmlToJSON(xml) {
 function renderTree(data, orientation) {
     d3.select("svg").selectAll("*").remove();
 
-    let width = 960, height = 600;
+    let baseWidth = 960, baseHeight = 600;
+
+    // Compute max depth to set dynamic width for horizontal trees
+    let root = d3.hierarchy(data);
+    let maxDepth = root.height; // Tree depth (number of levels)
+    let width = orientation === "horizontal" ? Math.max(baseWidth, maxDepth * 200) : baseWidth;
+    let height = baseHeight;
+
     let svg = d3.select("svg").attr("width", width).attr("height", height);
     let g = svg.append("g").attr("transform", orientation === "horizontal" ? "translate(100,50)" : "translate(50,50)");
 
     let treeLayout;
     if (orientation === "horizontal") {
-        treeLayout = d3.tree().size([height - 100, width - 100]);  // Left-to-right
+        treeLayout = d3.tree().size([height - 100, width - 200]);  // Expand width dynamically
     } else {
-        treeLayout = d3.tree().size([width - 100, height - 100]);  // Top-to-bottom
+        treeLayout = d3.tree().size([width - 100, height - 100]);
     }
 
-    let root = d3.hierarchy(data);
     treeLayout(root);
 
     let link = g.selectAll(".link")
@@ -59,3 +65,4 @@ function renderTree(data, orientation) {
     node.append("circle").attr("r", 6);
     node.append("text").attr("dy", -10).attr("text-anchor", "middle").text(d => d.data.name);
 }
+
