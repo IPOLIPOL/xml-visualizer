@@ -1,17 +1,5 @@
 <K3>
     <item name="K3.HG2">
-        <subitem name="Genset"></subitem>
-            <subsubitem name="Alternator"></subsubitem>
-            <subsubitem name="Engine"></subsubitem>
-        <subitem name="Day tank"></subitem>
-    </item>
-    <item name="K3.LC1">
-        <subitem name="Child 3"></subitem>
-    </item>
-</K3>
-
-<K3>
-    <item name="K3.HG2">
         <subitem name="Genset">
             <subsubitem name="Alternator">
                 <subsubsubitem name="Stator Heater">
