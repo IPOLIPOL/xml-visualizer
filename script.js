@@ -56,11 +56,7 @@ function renderTree(data, orientation) {
         let nodeEnter = node.enter().append("g")
             .attr("class", "node")
             .attr("transform", d => `translate(${source.y0},${source.x0})`)
-            .on("click", (event, d) => {
-                if (d.data.name !== "OSS") toggleNode(d); // Prevent collapsing/expanding for the "OSS" node
-            }) // Collapse/Expand for all except OSS
-            .on("mouseover", function (event, d) { d3.select(this).select("circle").style("fill", "orange"); })
-            .on("mouseout", function (event, d) { d3.select(this).select("circle").style("fill", "steelblue"); });
+            .on("click", (event, d) => toggleNode(d));
 
         nodeEnter.append("circle")
             .attr("r", 6)
@@ -100,6 +96,17 @@ function renderTree(data, orientation) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
+
+        function toggleNode(d) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
     }
 
     let i = 0;
@@ -113,24 +120,7 @@ function renderTree(data, orientation) {
             d.children = null;
         }
     }
-
-    function toggleNode(d) {
-        // Prevent collapsing/expanding for "OSS" node
-        if (d.data.name === "OSS") return;
-
-        if (d.children) {
-            d._children = d.children;
-            d.children = null;
-        } else {
-            if (d._children) {
-                d.children = d._children;
-                d._children = null;
-            }
-        }
-        update(d);
-    }
 }
-
 
 
 
