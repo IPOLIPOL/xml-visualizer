@@ -56,7 +56,9 @@ function renderTree(data, orientation) {
         let nodeEnter = node.enter().append("g")
             .attr("class", "node")
             .attr("transform", d => `translate(${source.y0},${source.x0})`)
-            .on("click", (event, d) => toggleNode(d)) // Collapse/Expand
+            .on("click", (event, d) => {
+                if (d.data.name !== "OSS") toggleNode(d); // Prevent collapsing/expanding for the "OSS" node
+            }) // Collapse/Expand for all except OSS
             .on("mouseover", function (event, d) { d3.select(this).select("circle").style("fill", "orange"); })
             .on("mouseout", function (event, d) { d3.select(this).select("circle").style("fill", "steelblue"); });
 
@@ -113,12 +115,14 @@ function renderTree(data, orientation) {
     }
 
     function toggleNode(d) {
-        // Toggle the collapse state for the clicked node
-        if (d.children || d._children) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            } else {
+        // Prevent collapsing/expanding for "OSS" node
+        if (d.data.name === "OSS") return;
+
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            if (d._children) {
                 d.children = d._children;
                 d._children = null;
             }
@@ -126,6 +130,7 @@ function renderTree(data, orientation) {
         update(d);
     }
 }
+
 
 
 
