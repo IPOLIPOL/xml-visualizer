@@ -39,6 +39,13 @@
                 let parser = new DOMParser();
                 let xml = parser.parseFromString(text, "application/xml");
 
+                // Debugging: Show the first node of the parsed XML
+                console.log("Parsed XML:", xml.documentElement);
+
+                // Display parsed XML structure
+                debugDiv.innerHTML += `<h3>✅ Parsed XML Document:</h3><pre>${xml.documentElement.outerHTML.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
+
+
                 if (xml.querySelector("parsererror")) {
                     debugDiv.innerHTML += `<p class="error">❌ Error parsing XML. Check the file format.</p>`;
                 } else {
