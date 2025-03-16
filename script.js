@@ -41,8 +41,6 @@ function renderTree(data, orientation) {
     root.x0 = height / 2;
     root.y0 = 0;
 
-    let pathHighlight = []; // Track the path to highlight
-
     function update(source) {
         let treeData = treeLayout(root);
         let nodes = treeData.descendants();
@@ -58,10 +56,9 @@ function renderTree(data, orientation) {
         let nodeEnter = node.enter().append("g")
             .attr("class", "node")
             .attr("transform", d => `translate(${source.y0},${source.x0})`)
-            .on("click", (event, d) => toggleNode(d))
-            .on("mousedown", (event, d) => highlightPath(d))  // Click and hold
-            .on("mouseup", () => removeHighlight())  // Release to remove highlight
-            .on("mouseleave", () => removeHighlight());  // Leave node without clicking
+            .on("click", (event, d) => toggleNode(d)) // Collapse/Expand
+            .on("mouseover", function (event, d) { d3.select(this).select("circle").style("fill", "orange"); })
+            .on("mouseout", function (event, d) { d3.select(this).select("circle").style("fill", "steelblue"); });
 
         nodeEnter.append("circle")
             .attr("r", 6)
@@ -101,47 +98,6 @@ function renderTree(data, orientation) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
-
-        function toggleNode(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            } else {
-                d.children = d._children;
-                d._children = null;
-            }
-            update(d);
-        }
-
-        // Highlight the path
-        function highlightPath(d) {
-            pathHighlight = [];
-            let current = d;
-            while (current.parent) {
-                pathHighlight.push(current);
-                current = current.parent;
-            }
-            pathHighlight.push(d); // Add the current node as well
-            updateLinkStyles();
-        }
-
-        // Remove path highlight
-        function removeHighlight() {
-            pathHighlight = [];
-            updateLinkStyles();
-        }
-
-        // Update the link styles based on highlight
-        function updateLinkStyles() {
-            link.style("stroke", "#ccc")
-                .style("stroke-width", "1.5px");
-
-            if (pathHighlight.length > 0) {
-                link.filter(l => pathHighlight.includes(l.target) || pathHighlight.includes(l.source))
-                    .style("stroke", "red")
-                    .style("stroke-width", "3px");
-            }
-        }
     }
 
     let i = 0;
@@ -155,7 +111,19 @@ function renderTree(data, orientation) {
             d.children = null;
         }
     }
+
+    function toggleNode(d) {
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            d.children = d._children;
+            d._children = null;
+        }
+        update(d);
+    }
 }
+
 
 
 
