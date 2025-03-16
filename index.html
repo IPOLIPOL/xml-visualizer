@@ -31,16 +31,19 @@
             renderTree(combinedTree);
         }
 
-        function xmlToJSON(xml)  {
-    // Check if the element has a name attribute
-    let nodeName = xml.getAttribute("name") || xml.nodeName;    
-    let obj = { name: nodeName, children: [] };  
+        function xmlToJSON(xml) {
+    // Get the name of the root element
+    let nodeName = xml.nodeName;  // For example: root1, root2, etc.
+    let obj = { name: nodeName, children: [] };
+
     // Process child elements
     for (let node of xml.children) {
         obj.children.push(xmlToJSON(node));
-    }    
+    }
+
     return obj;
-        }
+    }
+
 
         function renderTree(data) {
             d3.select("svg").selectAll("*").remove(); 
