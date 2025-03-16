@@ -28,7 +28,6 @@ function renderTree(data, orientation) {
     d3.select("svg").selectAll("*").remove();
 
     let baseWidth = 960, baseHeight = 600;
-
     let root = d3.hierarchy(data);
     let maxDepth = root.height;
     let width = orientation === "horizontal" ? Math.max(baseWidth, maxDepth * 200) : baseWidth;
@@ -37,46 +36,123 @@ function renderTree(data, orientation) {
     let svg = d3.select("svg").attr("width", width).attr("height", height);
     let g = svg.append("g").attr("transform", orientation === "horizontal" ? "translate(100,50)" : "translate(50,50)");
 
-    let treeLayout;
-    if (orientation === "horizontal") {
-        treeLayout = d3.tree().size([height - 100, width - 200]);
-    } else {
-        treeLayout = d3.tree().size([width - 100, height - 100]);
+    let treeLayout = d3.tree().size(orientation === "horizontal" ? [height - 100, width - 200] : [width - 100, height - 100]);
+
+    root.x0 = height / 2;
+    root.y0 = 0;
+
+    let pathHighlight = [];
+
+    function update(source) {
+        let treeData = treeLayout(root);
+        let nodes = treeData.descendants();
+        let links = treeData.links();
+
+        nodes.forEach(d => {
+            d.y = orientation === "horizontal" ? d.depth * 180 : d.y;
+        });
+
+        let node = g.selectAll(".node")
+            .data(nodes, d => d.id || (d.id = ++i));
+
+        let nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${source.y0},${source.x0})`)
+            .on("click", (event, d) => toggleNode(d))
+            .on("mousedown", (event, d) => highlightPath(d))  // Click and hold
+            .on("mouseup", () => removeHighlight())  // Release to remove highlight
+            .on("mouseleave", () => removeHighlight());  // Leave node without clicking
+
+        nodeEnter.append("circle")
+            .attr("r", 6)
+            .style("cursor", "pointer");
+
+        nodeEnter.append("text")
+            .attr("dy", -10)
+            .attr("text-anchor", "middle")
+            .text(d => d.data.name);
+
+        let nodeUpdate = nodeEnter.merge(node);
+        nodeUpdate.transition()
+            .duration(500)
+            .attr("transform", d => `translate(${d.y},${d.x})`);
+
+        let link = g.selectAll(".link")
+            .data(links, d => d.target.id);
+
+        let linkEnter = link.enter().insert("line", "g")
+            .attr("class", "link")
+            .attr("x1", d => source.y0)
+            .attr("y1", d => source.x0)
+            .attr("x2", d => source.y0)
+            .attr("y2", d => source.x0)
+            .style("stroke", "#ccc")
+            .style("stroke-width", "1.5px");
+
+        let linkUpdate = linkEnter.merge(link);
+        linkUpdate.transition()
+            .duration(500)
+            .attr("x1", d => d.source.y)
+            .attr("y1", d => d.source.x)
+            .attr("x2", d => d.target.y)
+            .attr("y2", d => d.target.x);
+
+        nodes.forEach(d => {
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
+
+        function toggleNode(d) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
+
+        // Highlight the path
+        function highlightPath(d) {
+            pathHighlight = [];
+            let current = d;
+            while (current.parent) {
+                pathHighlight.push(current);
+                current = current.parent;
+            }
+            pathHighlight.push(d); // Add the current node as well
+            updateLinkStyles();
+        }
+
+        // Remove path highlight
+        function removeHighlight() {
+            pathHighlight = [];
+            updateLinkStyles();
+        }
+
+        // Update the link styles based on highlight
+        function updateLinkStyles() {
+            link.style("stroke", "#ccc")
+                .style("stroke-width", "1.5px");
+
+            if (pathHighlight.length > 0) {
+                link.filter(l => pathHighlight.includes(l.target) || pathHighlight.includes(l.source))
+                    .style("stroke", "red")
+                    .style("stroke-width", "3px");
+            }
+        }
     }
 
-    treeLayout(root);
+    let i = 0;
+    root.children.forEach(collapse);
+    update(root);
 
-    let link = g.selectAll(".link")
-        .data(root.links())
-        .enter().append("line")
-        .attr("class", "link")
-        .attr("x1", d => orientation === "horizontal" ? d.source.y : d.source.x)
-        .attr("y1", d => orientation === "horizontal" ? d.source.x : d.source.y)
-        .attr("x2", d => orientation === "horizontal" ? d.target.y : d.target.x)
-        .attr("y2", d => orientation === "horizontal" ? d.target.x : d.target.y)
-        .style("stroke", "#ccc") 
-        .style("stroke-width", "1.5px");
-
-    let node = g.selectAll(".node")
-        .data(root.descendants())
-        .enter().append("g")
-        .attr("class", "node")
-        .attr("transform", d => orientation === "horizontal" ? `translate(${d.y},${d.x})` : `translate(${d.x},${d.y})`)
-        .on("click", (event, d) => highlightPath(d, link));
-
-    node.append("circle").attr("r", 6).style("cursor", "pointer");
-    node.append("text").attr("dy", -10).attr("text-anchor", "middle").text(d => d.data.name);
-
-    function highlightPath(selectedNode, links) {
-        // Reset all links to default color and width
-        links.style("stroke", "#ccc").style("stroke-width", "1.5px");
-
-        // Highlight path to root
-        let current = selectedNode;
-        while (current.parent) {
-            let linkToHighlight = links.filter(d => d.target === current);
-            linkToHighlight.style("stroke", "red").style("stroke-width", "3px");
-            current = current.parent;
+    function collapse(d) {
+        if (d.children) {
+            d._children = d.children;
+            d._children.forEach(collapse);
+            d.children = null;
         }
     }
 }
