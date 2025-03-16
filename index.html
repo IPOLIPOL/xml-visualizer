@@ -32,18 +32,21 @@
         }
 
         function xmlToJSON(xml) {
-    // Get the name of the root element
-    let nodeName = xml.nodeName;  // For example: root1, root2, etc.
+    let nodeName = xml.nodeName;  // This captures the tag name (e.g., <K3>)
     let obj = { name: nodeName, children: [] };
 
-    // Process child elements
+    // Check if there's a 'name' attribute on the XML element itself
+    if (xml.hasAttribute('name')) {
+        obj.name = xml.getAttribute('name');  // If available, use the 'name' attribute
+    }
+
+    // Process child elements (items and subitems)
     for (let node of xml.children) {
         obj.children.push(xmlToJSON(node));
     }
 
     return obj;
     }
-
 
         function renderTree(data) {
             d3.select("svg").selectAll("*").remove(); 
